@@ -26,9 +26,6 @@ import java.util.Map;
  */
 public class RSAUtils {
 
-    public static final String PRIVATE_VAL = "";
-    public static final String PUBLIC_VAL = "";
-
     /**
      * 加密算法RSA
      */
@@ -58,16 +55,21 @@ public class RSAUtils {
     private static final String PRIVATE_KEY = "RSA_PRIVATE_KEY";
 
     /**
-     * RSA 支持的最大加密大小
+     * RSA KEY_SIZE 支持的最大加密大小
      */
     private static final int MAX_ENCRYPT_BLOCK = 117;
 
     /**
-     * RSA 支持的最大解密大小
+     * RSA KEY_SIZE 支持的最大解密大小
      */
     private static final int MAX_DECRYPT_BLOCK = 128;
 
     /**
+     * KEY_SIZE/MAX_ENCRYPT_BLOCK/MAX_DECRYPT_BLOCK
+     * 1024/117/128
+     * 2048/245/256
+     * MAX_DECRYPT_BLOCK = MAX_ENCRYPT_BLOCK + 11
+     *
      * RSA 公钥私钥大小
      *  RSAUtils#MAX_ENCRYPT_BLOCK
      *  RSAUtils#MAX_DECRYPT_BLOCK
@@ -97,7 +99,7 @@ public class RSAUtils {
      */
     public static String getPrivateKey(Map<String, Object> keyMap) {
         Key key = (Key) keyMap.get(PRIVATE_KEY);
-        return base64ToString(key.getEncoded());
+        return base64Encode(key.getEncoded());
     }
 
     /**
@@ -106,7 +108,7 @@ public class RSAUtils {
      */
     public static String getPublicKey(Map<String, Object> keyMap) {
         Key key = (Key) keyMap.get(PUBLIC_KEY);
-        return base64ToString(key.getEncoded());
+        return base64Encode(key.getEncoded());
     }
 
     /**
@@ -123,7 +125,7 @@ public class RSAUtils {
         Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
         signature.initSign(privateK);
         signature.update(data);
-        return base64ToString(signature.sign());
+        return base64Encode(signature.sign());
     }
 
     /**
@@ -231,9 +233,51 @@ public class RSAUtils {
     }
 
     /**
+     * 将公钥转化为xml格式
+     * Java和C# RSA加密密钥互通以及密文字节信息大于117位或128位的终极解决办法
+     *  https://blog.csdn.net/wenfengzhuo/article/details/7925433
+     *
+     * @param encodedPrivateKey 私钥
+     * @author wenfengzhuo
+     */
+    private static String privateKeyInfoToXMLRSAPubKey(byte[] encodedPrivateKey) {
+        try {
+            StringBuffer buff = new StringBuffer(1024);
+
+            PKCS8EncodedKeySpec pvkKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPrivateCrtKey pvkKey = (RSAPrivateCrtKey) keyFactory.generatePrivate(pvkKeySpec);
+            buff.append("<RSAKeyValue>");
+            buff.append("<Modulus>" + base64Encode(removeMSZero(pvkKey.getModulus().toByteArray())) + "</Modulus>");
+            buff.append("<Exponent>" + base64Encode(removeMSZero(pvkKey.getPublicExponent().toByteArray())) + "</Exponent>");
+            buff.append("</RSAKeyValue>");
+            return buff.toString();
+        } catch (Exception e) {
+            System.err.println(e);
+            return null;
+        }
+    }
+
+    /**
+     * 实现java和C# key的byte[]值互通
+     * @author wenfengzhuo
+     */
+    private static byte[] removeMSZero(byte[] data) {
+        byte[] data1;
+        int len = data.length;
+        if (data[0] == 0) {
+            data1 = new byte[data.length-1];
+            System.arraycopy(data, 1, data1, 0, len-1);
+        } else {
+            data1 = data;
+        }
+        return data1;
+    }
+
+    /**
      * base64转码
      */
-    public static String base64ToString(byte[] target) {
+    public static String base64Encode(byte[] target) {
         return Base64.getEncoder().encodeToString(target);
     }
 
@@ -269,13 +313,13 @@ public class RSAUtils {
 
         // 公钥加密 && 私钥解密
         byte[] bytesEncryptByPublicKey = encryptByPublicKey(target.getBytes(), publicKey);
-        System.out.println(String.format("公钥加密:%s%n", bytesEncryptByPublicKey));
+        System.out.println(String.format("公钥加密:%s%n", base64Encode(bytesEncryptByPublicKey)));
         byte[] bytesDecryptByPrivateKey = decryptByPrivateKey(bytesEncryptByPublicKey, privateKey);
         System.out.println(String.format("私钥解密:%s%n", new String(bytesDecryptByPrivateKey)));
 
         // 私钥加密 && 公钥解密
         byte[] bytesEncryptByPrivateKey = encryptByPrivateKey(target.getBytes(), privateKey);
-        System.out.println(String.format("私钥加密:%s%n", bytesEncryptByPrivateKey));
+        System.out.println(String.format("私钥加密:%s%n", base64Encode(bytesEncryptByPrivateKey)));
         byte[] bytesDecryptByPublicKey = decryptByPublicKey(bytesEncryptByPrivateKey, publicKey);
         System.out.println(String.format("公钥解密:%s%n", new String(bytesDecryptByPublicKey)));
     }

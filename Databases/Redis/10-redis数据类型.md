@@ -142,3 +142,6 @@ PFMERGE newSource source1 source2
 * Redis HyperLogLog 是用来做基数统计的算法 :: 基数(不重复元素)
 * 可以用来做大数据的统计，不大不要用
 
+> reids scan api
+
+* https://www.jianshu.com/p/4c842c41ba41

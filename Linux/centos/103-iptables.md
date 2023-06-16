@@ -97,7 +97,7 @@ iptables -F
   * 说明包正在建立一个新的连接，这个连接是和一个已建立的连接相关的。
   * 比如，FTP data transfer，ICMP error 和一个TCP或UDP连接相关。注意NEW状态并不在试图建立新连接的TCP包里寻找SYN标记，因此它不应该不加修改地用在只有一个防火墙或在不同的防火墙之间没有启用负载平衡的地方。
 
-> iptables 配置文件
+> iptables 配置文件, 配置开机自启shell实现重启自动加载配置
 
 ```shell
 # 将目前的 iptables 的配置导出成文件

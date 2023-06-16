@@ -1,15 +1,29 @@
 > ## elasticsearch logstash
 
+* [logstash 官方文档](https://www.elastic.co/guide/en/logstash/current/index.html)
+* [logstash kafka 官方配置文档](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html)
+* [logstash mysql 同步 elasticsearch 官方文档](https://www.elastic.co/cn/blog/how-to-keep-elasticsearch-synchronized-with-a-relational-database-using-logstash)
+
 Logstash事件处理管道有三个阶段：输入 > 过滤器 > 输出。
 
 > 下载 logstash 解压
 
 ```shell
-# 运行指令
+# 运行指令 --config.reload.automatic 配置自动重新加载
 bin/logstash.bat -f config/elastic.conf
 ```
 
 > logstash 的脚本语法
+
+* `date` : 日期解析
+* `grok` : 正则匹配解析
+* `dissect` : 分割符解析
+* `mutate` : 对字段进行处理(增删改)
+* `json` : 按照 json 解析字段内容到指定字段中
+* `geoip` : 增加地理位置数据
+* `ruby` : 利用 ruby 代码来动态修改 logstash event
+
+---
 
 * elastic.conf 同步es索引数据
 
@@ -116,6 +130,85 @@ output{
    
 }
 ```
+
+* input kafka output db
+* `bin/logstash-plugin install logstash-output-jdbc`
+* 离线安装 `logstash-output-jdbc` https://blog.csdn.net/u011311291/article/details/86743602
+
+```json
+input {
+
+  kafka {
+    bootstrap_servers => "192.168.0.1:9092,192.168.0.1:9092,192.168.0.1:9092"
+    topics => ["data_10086"]
+    group_id => "logstash_group"
+    consumer_threads => 1
+    codec => "json"
+    type => "10086"
+  }
+
+  kafka {
+    bootstrap_servers => "192.168.0.1:9092,192.168.0.1:9092,192.168.0.1:9092"
+    topics => ["data_10010"]
+    group_id => "logstash_group"
+    consumer_threads => 1
+    codec => "json"
+    type => "10010"
+ }
+
+}
+
+filter {
+  json {
+    source => "message"
+  }
+}
+
+output {
+
+  if [type] == "10086" {
+    if [sql_model] == "INSERT" {
+      jdbc {
+        driver_jar_path => "/data/soft/driver/mysql-connector-java-8.0.27.jar"
+        driver_class => "com.mysql.cj.jdbc.Driver"
+        connection_string => "jdbc:mysql://192.168.1.1:3306/db_name?characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&zeroDateTimeBehavior=convertToNull&user=root&password=123456"
+        statement => [ "INSERT INTO `tbl_xxx` (`id`,`phone`) VALUES (?,?);", "id","phone" ]
+      }
+    }
+
+     if [sql_model] == "UPDATE" {
+      jdbc {
+        driver_jar_path => "/data/soft/driver/mysql-connector-java-8.0.27.jar"
+        driver_class => "com.mysql.cj.jdbc.Driver"
+        connection_string => "jdbc:mysql://192.168.1.1:3306/db_name?characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&zeroDateTimeBehavior=convertToNull&user=root&password=123456"
+        statement => [ "UPDATE `tbl_xxx` SET `phone` = ? WHERE `id` = ?;", "phone","id" ]
+      }
+    }
+  }
+  
+  if [type] == "10010" {
+    if [sql_model] == "INSERT" {
+      jdbc {
+        driver_jar_path => "/data/soft/driver/ojdbc8-19.13.0.0.0.jar"
+        driver_class => "oracle.jdbc.driver.OracleDriver"
+        connection_string => "jdbc:oracle:thin:root/123456@192.168.2.1:1621/db_name"
+        statement => [ 'INSERT INTO "tbl_xxx"("id","phone") VALUES (?, ?) ', "id","phone" ]
+      }
+    }
+	
+    if [sql_model] == "UPDATE" {
+      jdbc {
+        driver_jar_path => "/data/soft/driver/ojdbc8-19.13.0.0.0.jar"
+        driver_class => "oracle.jdbc.driver.OracleDriver"
+        connection_string => "jdbc:oracle:thin:root/123456@192.168.2.1:1621/db_name"
+        statement => [ 'UPDATE "tbl_xxx" SET "phone" = ? WHERE "id" = ? ', "%{phone}","id" ]
+      }
+    }
+  }
+
+}
+```
+
 
 > 验证 ElasticSearch X-pack
 

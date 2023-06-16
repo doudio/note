@@ -71,4 +71,102 @@ chmod 755 demo.txt
 
 ```shell
 ln -s /etc/nginx/conf.d/doudio.conf ./nginx/doudio.conf
+
+alias logstash="/data/soft/logstash-6.8.2/bin/logstash"
 ```
+
+> 设置时区（CentOS 7）
+
+```shell
+# 先执行命令timedatectl status|grep 'Time zone'查看当前时区，如果不是中国时区（Asia/Shanghai），则需要先设置为中国时区，否则时区不同会存在时差。
+# 已经是Asia/Shanghai，则无需设置
+[root@xiaoz shadowsocks]# timedatectl status|grep 'Time zone'
+       Time zone: Asia/Shanghai (CST, +0800)
+
+#执行下面的命令设置时区
+#设置硬件时钟调整为与本地时钟一致
+timedatectl set-local-rtc 1
+#设置时区为上海
+timedatectl set-timezone Asia/Shanghai
+```
+
+> centos 通过指令同步日期
+
+```shell
+# 输出当前时间
+date "+%Y-%m-%d %H:%M:%S"
+yum -y install ntpdate
+ntpdate -u pool.ntp.org
+#中国, cn.ntp.org.cn
+#中国香港, hk.ntp.org.cn
+#美国, us.ntp.org.cn
+```
+
+* 同步时间后可能部分服务器过一段时间又会出现偏差，因此最好设置crontab来定时同步时间，方法如下：
+
+```shell
+#安装crontab
+yum -y install crontab
+#创建crontab任务
+crontab -e
+#添加定时任务
+*/20 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1
+#重启crontab
+service crond reload
+```
+
+`@see` https://www.xiaoz.me/archives/12989
+
+> 线上Java 高CPU占用、高内存占用排查思路
+
+`@see` https://blog.csdn.net/baiye_xing/article/details/90483169
+
+> Java线程快照查看
+
+```shell
+#查看CPU占用最高的Java进程
+top -c
+
+一些常见的 top 指令参数如下：
+
+    -h：显示帮助信息。
+    -c：显示完整的命令行，而不只是进程名。
+    -d：设置刷新间隔，单位为秒。
+    -o：按照指定的字段排序，如 CPU、MEM、PID 等。
+    -u：只显示指定用户的进程。
+    -p：只显示指定 PID 的进程。
+
+htop是一个类似于top命令的Linux进程监控工具，它提供了一个交互式的界面
+
+要根据内存或者CPU排序在运行top指令后
+
+* 按M可改变内存使用率的输出结果
+* 按Shift+M来根据内存排序
+* 按Shift+P来根据CPU排序
+
+# 查询内存
+free -h
+
+#查看进程中线程使用情况
+top -H -p <pid>
+
+#将线程id转为16进制
+printf "%x\n" <pid>
+
+#生成线程快照日志
+jstack <pid> > <pid>.log
+
+#导出Java应用程序的内存快照文件
+jmap -dump:format=b,file=<pid>.hprof <pid>
+
+jmap -histo <pid> | more
+```
+
+> .hprof 内存分析工具
+* https://help.aliyun.com/document_detail/32024.html#section-wue-8jl-ygt
+* https://www.eclipse.org/mat/downloads.php
+* 文件太大改 `MemoryAnalyzer.ini` -Xmx9024m
+
+> yum -y install epel-release 是一个Linux下的命令，用于在系统上安装epel-release软件包。
+
+epel-release是一个由Fedora社区维护的软件包仓库。它提供了许多常用的、不在官方软件源中的软件包，如PHPMyAdmin、Node.js、Git等。通过安装epel-release软件包，可以将epel软件仓库添加到系统的软件源中，从而使得系统可以使用epel软件仓库中的软件包。

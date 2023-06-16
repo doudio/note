@@ -36,6 +36,9 @@ clientPort=2181
 initLimit=5
 # follower和leader之间响应的最长时间
 syncLimit=2
+
+#server.A=B：C：D：其中 A 数字，表示是第几号服务器. dataDir目录下必有一个myid文件，里面只存储A的值,ZK启动时读取此文件，与下面列表比较判断是哪个server
+# B 是服务器 ip ；C表示与 Leader 服务器交换信息的端口；D 表示的是进行选举时的通信端口。
 server.1=<ip>:<port>:<port>
 server.2=<ip>:<port>:<port>
 server.3=<ip>:<port>:<port>
@@ -168,6 +171,19 @@ spring.kafka.consumer.properties.max.partition.fetch.bytes=2097152
 
 com.kafka.kafkaconsumerlistener.topic=devtopic
 com.kafka.kafkaconsumerlistener.groupId=devtopic-groupid
+
+# mySecret:81704954bb3ac8798573011b67ecc4a4
+my.secret=${random.value}
+# myNumber:-167189538
+my.number=${random.int}
+# myBignumber:-3193751453883786185
+my.bignumber=${random.long}
+# myUuid:wanren-api-0c1acae5-fd0d-4dbf-8c12-3e54d1782851
+my.uuid=${random.uuid}
+# myNumberLessThanTen:2
+my.number.less.than.ten=${random.int(10)}
+# myNumberInRange:49940
+my.number.in.range=${random.int[1024,65536]}
 ```
 
 > 创建方法监听

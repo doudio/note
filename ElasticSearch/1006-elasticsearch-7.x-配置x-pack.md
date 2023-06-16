@@ -8,6 +8,7 @@
 
 ```yaml
 xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
 ```
 
 * 配置用户密码
@@ -59,6 +60,7 @@ DELETE /_xpack/security/user/jacknich
 
 ```yaml
 xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
 ```
 
 * `ca`-生成新的本地证书颁发机构

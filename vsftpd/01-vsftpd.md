@@ -211,6 +211,16 @@ chmod 760 <local-dir>
 
 > FTPUtils
 
+* maven
+
+```xml
+<dependency>
+    <groupId>commons-net</groupId>
+    <artifactId>commons-net</artifactId>
+    <version>3.8.0</version>
+</dependency>
+```
+
 ```java
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -407,6 +417,14 @@ public class FTPUtil implements AutoCloseable {
 ```
 
 > SFTPUtil
+
+```xml
+<dependency>
+    <groupId>com.jcraft</groupId>
+    <artifactId>jsch</artifactId>
+    <version>0.1.55</version>
+</dependency>
+```
 
 ```java
 import com.jcraft.jsch.*;

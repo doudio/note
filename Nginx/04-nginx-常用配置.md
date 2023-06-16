@@ -41,6 +41,19 @@ location /static/ {
 }
 ```
 
+> 配置vue项目
+
+* vue 项目打包的`index.html`中 `src` 需要有 `/admin` 前缀
+* vue 项目在路由的地址也要加上 `/admin` 前缀
+
+```json
+location /admin {
+    alias /data/web/admin/dist;
+    try_files $uri $uri/ /admin/index.html;
+    index index.html index.htm;
+}
+```
+
 > 注意: 在nginx配置静态资源目录中的良好习惯是:
 
 1) 在 location / 中配置root目录;
@@ -86,6 +99,42 @@ location /proxyapi/ {
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header X-Real-IP $remote_addr;
 }
+
+}
+```
+
+> 配置websocket代理
+
+```json
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+upstream my_server {
+    #ip_hash;
+    server 127.0.0.1:9000;
+    server 127.0.0.1:9001;
+}
+
+server {
+
+    listen 80;
+    server_name 172.16.10.210;
+
+    #编码格式
+    charset utf-8;
+
+    location / {
+        proxy_pass http://my_server;
+        proxy_read_timeout 300s;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
 
 }
 ```

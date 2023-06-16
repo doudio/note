@@ -97,5 +97,11 @@ public static void main(String[] args) {
 }
 ```
 
+> 线程池管理可参照 nacos 2.0.1 版本
 
-
+| 类路径                                               | 说明                     |
+| ---------------------------------------------------- | ------------------------ |
+| com.alibaba.nacos.common.utils.ThreadUtils           | 封装了一些线程常用的方法 |
+| com.alibaba.nacos.common.executor.NameThreadFactory  | 管理线程名和设置守护线程 |
+| com.alibaba.nacos.common.executor.ExecutorFactory    | 统一管理线程池资源       |
+| com.alibaba.nacos.config.server.utils.ConfigExecutor | 配置线程池               |

@@ -125,4 +125,12 @@ do
 done
 ```
 
-> `2>&1` 回车键的一个处理
+> `2>&1` 标准错误输出
+
+| 名称                 | 代码 | 操作符           | Java中表示 | Linux 下文件描述符（Debian 为例)             |
+| -------------------- | ---- | ---------------- | ---------- | -------------------------------------------- |
+| 标准输入(stdin)      | 0    | < 或 <<          | System.in  | /dev/stdin -> /proc/self/fd/0 -> /dev/pts/0  |
+| 标准输出(stdout)     | 1    | >, >>, 1> 或 1>> | System.out | /dev/stdout -> /proc/self/fd/1 -> /dev/pts/0 |
+| 标准错误输出(stderr) | 2    | 2> 或 2>>        | System.err | /dev/stderr -> /proc/self/fd/2 -> /dev/pts/0 |
+
+[参考](https://blog.csdn.net/zhaominpro/article/details/82630528)

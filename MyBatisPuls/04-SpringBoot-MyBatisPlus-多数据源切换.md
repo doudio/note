@@ -3,6 +3,7 @@
 * 实现功能为通 aop 控制不同包下面的类采用不同的数据库
   * 在 `mapper.one` 包中的数据库采用 `one_db`
   * 在 `mapper.two` 包总的数据库采用 `two_db`
+  * `使用` `单引号` 包起来的地方是动态更改的
 
 > #### 导入相关依赖
 
@@ -36,16 +37,16 @@
 
 ```properties
 ##onedb
-spring.datasource.druid.one.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.druid.one.url=jdbc:mysql://localhost:3306/db_one?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
-spring.datasource.druid.one.username=username
-spring.datasource.druid.one.password=password
+spring.datasource.druid.`one`.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.druid.`one`.url=jdbc:mysql://localhost:3306/db_one?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+spring.datasource.druid.`one`.username=username
+spring.datasource.druid.`one`.password=password
 
 ##twodb
-spring.datasource.druid.two.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.druid.two.url=jdbc:mysql://localhost:3306/db_two?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
-spring.datasource.druid.two.username=username
-spring.datasource.druid.two.password=password
+spring.datasource.druid.`two`.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.druid.`two`.url=jdbc:mysql://localhost:3306/db_two?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+spring.datasource.druid.`two`.username=username
+spring.datasource.druid.`two`.password=password
 ```
 
 > 配置 MyBatisPlus 相关
@@ -73,18 +74,18 @@ mybatis-plus:
 
 ```java
 @Configuration
-@MapperScan("com.sec.datasource.datasource.mapper")
+@MapperScan("`com.sec.datasource.datasource.mapper`")
 public class MyBatiesPlusConfiguration {
 
-    @Bean(name = "one")
-    @ConfigurationProperties(prefix = "spring.datasource.druid.one" )
-    public DataSource one() {
+    @Bean(name = "`one`")
+    @ConfigurationProperties(prefix = "spring.datasource.druid.`one`" )
+    public DataSource `one`() {
         return DruidDataSourceBuilder.create().build();
     }
 
-    @Bean(name = "two")
-    @ConfigurationProperties(prefix = "spring.datasource.druid.two" )
-    public DataSource two() {
+    @Bean(name = "`two`")
+    @ConfigurationProperties(prefix = "spring.datasource.druid.`two`" )
+    public DataSource `two`() {
         return DruidDataSourceBuilder.create().build();
     }
 
@@ -94,22 +95,22 @@ public class MyBatiesPlusConfiguration {
      */
     @Bean
     @Primary
-    public DataSource multipleDataSource(@Qualifier("one") DataSource onedb, @Qualifier("two") DataSource twodb) {
+    public DataSource multipleDataSource(@Qualifier("`one`") DataSource `onedb`, @Qualifier("`two`") DataSource `twodb`) {
         MultipleDataSource multipleDataSource = new MultipleDataSource();
         Map< Object, Object > targetDataSources = new HashMap<>();
-        targetDataSources.put(DataSourceEnum.ONE_DB.getValue(), onedb);
-        targetDataSources.put(DataSourceEnum.TWO_DB.getValue(), twodb);
+        targetDataSources.put(DataSourceEnum.ONE_DB.getValue(), `onedb`);
+        targetDataSources.put(DataSourceEnum.TWO_DB.getValue(), `twodb`);
         //添加数据源
         multipleDataSource.setTargetDataSources(targetDataSources);
         //设置默认数据源
-        multipleDataSource.setDefaultTargetDataSource(onedb);
+        multipleDataSource.setDefaultTargetDataSource(`onedb`);
         return multipleDataSource;
     }
 
     @Bean("sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         MybatisSqlSessionFactoryBean sqlSessionFactory = new MybatisSqlSessionFactoryBean();
-        sqlSessionFactory.setDataSource(multipleDataSource(one(), two()));
+        sqlSessionFactory.setDataSource(multipleDataSource(`one`(), `two`()));
 
         MybatisConfiguration configuration = new MybatisConfiguration();
         configuration.setJdbcTypeForNull(JdbcType.NULL);
@@ -163,8 +164,8 @@ public class MultipleDataSource extends AbstractRoutingDataSource {
 @Getter
 public enum DataSourceEnum {
 
-    ONE_DB("one_db"),
-    TWO_DB("two_db");
+    `ONE_DB`("`one_db`"),
+    `TWO_DB`("`two_db`");
 
     private String value;
 
@@ -182,27 +183,27 @@ public enum DataSourceEnum {
 @Component
 public class DataSourceAspect {
 
-    @Pointcut("execution(* com.sec.datasource.datasource.mapper.onedb.*.*(..))")
-    private void onedbAspect() {
+    @Pointcut("execution(* `com.sec.datasource.datasource.mapper.onedb`.*.*(..))")
+    private void `onedb`Aspect() {
     }
 
-    @Pointcut("execution(* com.sec.datasource.datasource.mapper.twodb.*.*(..))")
-    private void twodbAspect() {
+    @Pointcut("execution(* `com.sec.datasource.datasource.mapper.twodb`.*.*(..))")
+    private void `twodb`Aspect() {
     }
 
-    @Before("onedbAspect()")
-    public void onedb() {
-        log.info("select to datasource one");
-        DataSourceContextHolder.setDataSource(DataSourceEnum.ONE_DB);
+    @Before("`onedb`Aspect()")
+    public void `onedb`() {
+        log.info("select to datasource `one`");
+        DataSourceContextHolder.setDataSource(DataSourceEnum.`ONE_DB`);
     }
 
-    @Before("twodbAspect()")
-    public void twodb() {
-        log.info("select to datasource two");
-        DataSourceContextHolder.setDataSource(DataSourceEnum.TWO_DB);
+    @Before("`twodb`Aspect()")
+    public void `twodb`() {
+        log.info("select to datasource `two`");
+        DataSourceContextHolder.setDataSource(DataSourceEnum.`TWO_DB`);
     }
 
-    @After("onedbAspect() || twodbAspect()")
+    @After("`onedb`Aspect() || `twodb`Aspect()")
     public void doAfter(){
         DataSourceContextHolder.clear();
     }

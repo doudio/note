@@ -63,6 +63,7 @@ vim /root/.jenkins/hudson.model.UpdateCenter.xml
 * 查看默认密码： `cat /root/.jenkins/secrets/initialAdminPassword`
 * 在选择初始安装的插件时选择： 
   * `Install suggested plugins` 安装建议的插件, 安装jenkins社区认为最有用的插件。
+  * 推荐安装: `Job Configuration History` 配置更改历史记录插件
 * 汉化 Jenkins
 
 ![](img/jenkins-zh_cn.png)
@@ -87,7 +88,7 @@ vim /root/.jenkins/hudson.model.UpdateCenter.xml
 
 ![](img/jenkins-add-account.png)
 
-* 构建配置 (调用顶级maven目标) 
+* 构建配置 (调用顶级maven目标) `-Dmaven.test.skip=true`
 
 ![](img/jenkins-maven-compile.png)
 
@@ -103,9 +104,9 @@ data/
 │   └── target
 │       └── gitlab-demo-0.0.1-SNAPSHOT.jar
 ├── log
-│   ├── df-api-server-0.0.1-SNAPSHOT-20210128.log
-│   ├── df-api-server-0.0.1-SNAPSHOT-20210129.log
-│   └── df-api-server-0.0.1-SNAPSHOT-20210131.log
+│   ├── api-server-0.0.1-SNAPSHOT-20210128.log
+│   ├── api-server-0.0.1-SNAPSHOT-20210129.log
+│   └── api-server-0.0.1-SNAPSHOT-20210131.log
 └── script
     ├── start.sh
     └── stop.sh
@@ -177,8 +178,34 @@ done
 
 ![](img/jenkins-webhooks-err.png)
 
+* Jenkins 编译 node vue
+* https://segmentfault.com/a/1190000037540133
+
+* Build
+  * Execute shell
+```shell
+source /etc/profile 
+cnpm cache verify 
+cnpm install 
+cnpm run build
+zip -r dist.zip dist
+```
+
+* Post-build Actions
+  * Send build artifacts over SSH
+    * Source files: dist.zip
+    * Remote directory: front/client/
+    * Exec command: 
+```shell
+rm -rf /data/code/front/client/bak/*
+unzip /data/code/front/client/dist.zip -d /data/code/front/client/bak/
+rm -rf /usr/local/nginx/html/*
+cp -fr /data/code/front/client/bak/dist/*  /usr/local/nginx/html/
+```
+
 * 整合加实践
 * 安装 >> https://blog.csdn.net/ruangong1203/article/details/73065410/
 * 配置SpringBoot >> https://www.cnblogs.com/wfd360/p/11314697.html
 * 配置联动 >> https://www.cnblogs.com/mingerlcm/p/12702528.html
 * jenkins镜像 >> https://www.cnblogs.com/yjssjm/p/12658970.html
+* 企业微信通知插件(Qy Wechat Notification) >> https://blog.csdn.net/weixin_42562106/article/details/124134265

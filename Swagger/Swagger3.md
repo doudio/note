@@ -120,3 +120,19 @@ public class DemoVO {
 > http://localhost:8080/doc.html 页面
 
 ![](img/swagger3.png)
+
+
+>  报错原因
+
+因为Springfox使用的路径匹配是基于AntPathMatcher的，而Spring Boot 2.6.X使用的是PathPatternMatcher。
+
+> 解决
+
+在配置文件(application.yaml）的配置里，加上下面这个：
+
+```yaml
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+```

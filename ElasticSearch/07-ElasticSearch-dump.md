@@ -2,6 +2,8 @@
 
 > #### ElasticSearch-dump 基于 nodejs 先安装 npm
 
+* https://github.com/elasticsearch-dump/elasticsearch-dump
+
 ```shell
 # 安装完成后正式安装 Elasticsearch-dump
 # wins 安装 nodejs 并配置可以跳转到: https://www.jianshu.com/p/7d60bf86bc0b
@@ -71,6 +73,16 @@ elasticdump
 	--input=http://<ip>:<port>/<index>
 	--output=/es/data/<index>_settings.json
 	--fileSize=10mb # 设置文件大小
+
+elasticdump \
+  --input=http://production.es.com:9200/my_index \
+  --output=query.json \
+  --searchBody=@/data/searchbody.json  
+
+elasticdump \
+  --input=http://production.es.com:9200/my_index \
+  --output=$ \
+  | gzip > /data/my_index.json.gz
 ```
 
 * type 类型
@@ -88,5 +100,35 @@ elasticdump
 >
 > **注意**: 直接迁移 mapping 或者 data 将失去原有集群中索引的配置信息会导致分片数量和副本数量等问题
 
-* 需要验证的在 url 中添加
-* `http://<user>:<pwd>@<ip>:<port>/`
+* 认证授权 : https://github.com/elasticsearch-dump/elasticsearch-dump/wiki
+
+> url 认证
+
+```shell
+elasticdump \
+  --input=http://username:password@localhost:9200 \
+  --input-index=demo/dump \
+  --output=http://user:pass@192.168.0.2:9200 \
+  --output-index=demo/dump \
+  --type=data
+```
+
+> 使用授权文件
+
+```shell
+elasticdump \
+  --input=http://localhost:9200 \
+  --input-index=demo/dump \
+  --httpAuthFile=/path/to/your/http_auth_file \
+  --output=http://192.168.0.2:9200 \
+  --output-index=demo/dump \
+  --type=data
+```
+
+* http_auth_file中的内容。
+* 注意：以文件方式，你的所有服务器必须使用相同的基本认证。
+
+```json
+user=<username>
+password=<password>
+```
