@@ -58,10 +58,10 @@ ll /dev | grep cdrom
 # 因此，/dev/sr0代表系统中的第一个光驱设备。
 
 # 挂载 光驱
-sudo mount /dev/cdrom /mnt
+sudo mount /dev/cdrom /mnt（可自定义目录）
 
 # 卸载（弹出）光驱设备
-sudo umount /mnt（可自定义目录）
+sudo umount /mnt
 ```
 
 * 引用
