@@ -47,7 +47,25 @@ du -sh ./*
 684K    ./sys
 18M     ./VM_16_11_centos.log
 4.0K    ./VM_16_11_centos-slow.log
+
+# 查看有几张CD光驱连接
+ll /dev | grep cdrom
+
+# /dev/sr0 是光驱的设备，/dev/cdrom 代表光驱cdrom 是 sr0 的软链接.
+# ll /dev/cdrom 和 ll /dev/sr0 看看显示
+# 设备的设备文件名，其中的“sr”代表“SCSI CD-ROM”，数字“0”表示设备的编号。
+# 在Linux系统中，光驱设备通常被称为“sr”，而硬盘设备则被称为“sd”。
+# 因此，/dev/sr0代表系统中的第一个光驱设备。
+
+# 挂载 光驱
+sudo mount /dev/cdrom /mnt
+
+# 卸载（弹出）光驱设备
+sudo umount /mnt（可自定义目录）
 ```
+
+* 引用
+* [Linux系统中的设备文件——/dev/sr0](https://m.163.com/dy/article/IIPC7VCO0556471K.html)
 
 > 给某个目录赋给莫个用户
 
