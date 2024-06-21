@@ -93,6 +93,24 @@ ln -s /etc/nginx/conf.d/doudio.conf ./nginx/doudio.conf
 alias logstash="/data/soft/logstash-6.8.2/bin/logstash"
 ```
 
+> shell 终端乱码
+
+* 当时我乱码形成的原因是 curl 一个验证码接口 返回输出二进制后整个终端乱码了
+
+```shell
+ctl + d 退出登陆 后重新登陆后还没好
+
+在SSH终端上看到是的乱码，提示符都是乱的，可以用以下命令恢复
+oracle@linux-suse:~> tput sgr0
+乱码问题产生的原因是SSH的问题，因为在其他终端下，cat用样一个文件，不会产生乱码，于是试验乱码产生的原因
+
+oracle@linux-suse:~> echo -e 'xe
+屏幕再次乱码，好，再恢复
+
+oracle@linux-suse:~> echo -e 'xf'
+以上是需要盲打的，因为屏上看到的是乱码，最终问题产生的原因是十六进制字符E产生的，解决也很简单，十六进制字符F即可。
+```
+
 > 设置时区（CentOS 7）
 
 ```shell
