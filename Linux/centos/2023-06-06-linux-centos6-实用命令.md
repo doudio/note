@@ -104,7 +104,7 @@ ctl + d 退出登陆 后重新登陆后还没好
 oracle@linux-suse:~> tput sgr0
 乱码问题产生的原因是SSH的问题，因为在其他终端下，cat用样一个文件，不会产生乱码，于是试验乱码产生的原因
 
-oracle@linux-suse:~> echo -e 'xe
+oracle@linux-suse:~> echo -e 'xe'
 屏幕再次乱码，好，再恢复
 
 oracle@linux-suse:~> echo -e 'xf'
